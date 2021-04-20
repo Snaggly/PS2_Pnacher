@@ -57,7 +57,10 @@ IsoRecord* IsoTools::findElfFile() {
 			(file.filename[9] >= '0' && file.filename[9] <= '9') &&
 			(file.filename[10] >= '0' && file.filename[10] <= '9')
 		) {
-			result = &file;
+			result = new IsoRecord;
+			result->filename = file.filename;
+			result->location = file.location;
+			result->size = file.size;
 			break;
 		}
 	}

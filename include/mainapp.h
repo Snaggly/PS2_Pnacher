@@ -7,6 +7,7 @@
 #include <gtkmm/filechooserbutton.h>
 #include "PnachTools.h"
 #include "IsoTools.h"
+#include "ElfTools.h"
 
 using namespace PS2PNACHER;
 
@@ -32,6 +33,7 @@ private:
   Gtk::Button* patchBtn;
   PnachTools* pnacher = 0;
   IsoTools* iso = 0;
+  IsoRecord* elfFile = 0;
   
 };
 

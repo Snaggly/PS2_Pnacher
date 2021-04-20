@@ -1,11 +1,37 @@
 #include "mainapp.h"
 #include <gtkmm/messagedialog.h>
 #include <cstring>
+#include <iostream>
 
 using namespace PS2PNACHER;
 
 void MainApp::onPatchBtnClick() {
+	if (!pnacher) {
+		showError("No Pnach file selected!");
+		return;
+	}
 	
+	if (!iso) {
+		showError("No ISO file selected!");
+		return;
+	}
+	
+	if (!elfFile) {
+		showError("No ELF file selected!");
+		return;
+	}
+	
+	
+	try{
+		auto elfStr = std::fstream(isoFileSelector->get_filename(), 
+				std::ios::in | std::ios::out | std::ios::binary);
+		{
+			elfStr.seekp(elfFile->location * 0x800);
+			auto elfHed = parseElfFile(&elfStr);
+		}
+	}catch(std::exception& exc) {
+		showError("Patching failed! ELF could either not be parsed or written to!");
+	}
 }
 
 void MainApp::onPnachFileBtnClick() {
@@ -25,7 +51,7 @@ void MainApp::onIsoFileBtnClick() {
 		delete iso;
 	}
 	
-	iso = IsoTools::readIsoFromFile(isoFileSelector->get_filename().c_str());	
+	iso = IsoTools::readIsoFromFile(isoFileSelector->get_filename().c_str());
 	if (!iso) {
 		showError("Selected file is not an ISO!");
 		isoFileSelector->select_filename("");
@@ -38,7 +64,7 @@ void MainApp::onIsoFileBtnClick() {
 		return;
 	}
 	
-	auto elfFile = iso->findElfFile();
+	elfFile = iso->findElfFile();
 	if (!elfFile) {
 		showError("Couldn´t locate Elf in PlayStation ISO!");
 		isoFileSelector->select_filename("");
@@ -72,6 +98,7 @@ MainApp::~MainApp()
 {
 	delete pnacher;
 	delete iso;
+	delete elfFile;
 }
 
 void MainApp::showError(const char* message) {
