@@ -1,6 +1,7 @@
 #include "PnachTools.h"
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 namespace PS2PNACHER {
 	
@@ -42,8 +43,16 @@ namespace PS2PNACHER {
 						
 						PatchData patchInst;
 						patchInst.address = (uint32_t)std::stoul(s_address, 0, 16);
-						patchInst.length = s_length;
 						patchInst.data = (uint32_t)std::stoul(s_data, 0, 16);
+						
+						std::transform(s_length.begin(), s_length.end(), s_length.begin(), ::tolower);
+						if (!s_length.compare("byte")) patchInst.length = _byte;
+						else if (!s_length.compare("short")) patchInst.length = _short;
+						else if (!s_length.compare("word")) patchInst.length = _word;
+						else if (!s_length.compare("extended")) patchInst.length = _extended;
+						else {
+							throw std::exception();
+						}
 						
 						result->patches.push_back(patchInst);
 					}

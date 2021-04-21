@@ -8,6 +8,7 @@
 #include "PnachTools.h"
 #include "IsoTools.h"
 #include "ElfTools.h"
+#include "Patcher.h"
 
 using namespace PS2PNACHER;
 
@@ -26,6 +27,7 @@ protected:
   void getWidgets();
   void connectSignals();
   void showError(const char* message);
+  void showMessage(const char* message);
 
 private:
   Gtk::FileChooserButton* pnachFileSelector;

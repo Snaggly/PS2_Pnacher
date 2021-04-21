@@ -15,7 +15,7 @@ namespace PS2PNACHER
 	
 	struct PatchData {
 		uint32_t address;
-		std::string length;
+		TypeLength length;
 		uint32_t data;
 	};
 	

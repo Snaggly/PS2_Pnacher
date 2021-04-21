@@ -2,6 +2,7 @@
 #include <gtkmm/messagedialog.h>
 #include <cstring>
 #include <iostream>
+#include <filesystem>
 
 using namespace PS2PNACHER;
 
@@ -21,17 +22,45 @@ void MainApp::onPatchBtnClick() {
 		return;
 	}
 	
+	uint64_t elfLocation = elfFile->location * 0x800;
 	
+	Elf elfHed;
 	try{
 		auto elfStr = std::fstream(isoFileSelector->get_filename(), 
 				std::ios::in | std::ios::out | std::ios::binary);
 		{
-			elfStr.seekp(elfFile->location * 0x800);
-			auto elfHed = parseElfFile(&elfStr);
+			elfStr.seekp(elfLocation);
+			elfHed = parseElfFile(&elfStr);
 		}
 	}catch(std::exception& exc) {
 		showError("Patching failed! ELF could either not be parsed or written to!");
+		return;
 	}
+		
+	try{
+		std::string backupFile = isoFileSelector->get_filename();
+		backupFile.append(".bak");
+	    std::filesystem::copy_file(isoFileSelector->get_filename(), backupFile, 
+							std::filesystem::copy_options::overwrite_existing);
+	}catch(std::exception& exc) {
+		showError("Failed to create backup!");
+		return;
+	}
+	
+	try {
+		auto file = std::fstream(isoFileSelector->get_filename(),
+				std::ios::in | std::ios::out | std::ios::binary);
+		{
+			performPatch(&file, pnacher, &elfHed, elfLocation);
+		}
+	}catch(std::exception& exc) {
+		showError("Patching ELF failed. Make sure to reuse the backup!");
+		return;
+	}
+	
+	showMessage("Successfully patched iso! Make sure to keep your backup.");
+	pnachFileSelector->select_filename("");
+	isoFileSelector->select_filename("");
 }
 
 void MainApp::onPnachFileBtnClick() {
@@ -111,4 +140,16 @@ void MainApp::showError(const char* message) {
 			true
 		);
 		errordialog.run();
+}
+
+void MainApp::showMessage(const char* message) {
+	Gtk::MessageDialog messagedialog = Gtk::MessageDialog(
+			*window,
+			message,
+			false,
+			Gtk::MESSAGE_INFO,
+			Gtk::BUTTONS_OK,
+			true
+		);
+		messagedialog.run();
 }
