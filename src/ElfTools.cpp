@@ -41,7 +41,6 @@ Elf PS2PNACHER::parseElfFile(std::istream* file) {
 	
 	for (char i=0; i<result.Header.PHNum; ++i) {
 		ProgramHeader ph;
-		uint64_t test = file->tellg();
 		file->read((char*)&(ph.Type), sizeof(uint32_t));
 		file->read((char*)&(ph.Offset), sizeof(uint32_t));
 		file->read((char*)&(ph.VirtAddr), sizeof(uint32_t));

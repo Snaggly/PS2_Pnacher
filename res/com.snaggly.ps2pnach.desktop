@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PS2 Pnacher
+Comment=Applying Pnaches onto PS2 ISOs
+TryExec=ps2pnacher
+Exec=ps2pnacher
+Icon=com.snaggly.ps2pnach
+Categories=Utility;
