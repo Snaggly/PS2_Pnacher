@@ -13,16 +13,20 @@ To build you need to have the following packages installed (which I assume your 
 
 Clone the repo and let cmake handle the rest. Make sure that glade file (res/com.snaggly.ps2pnach_gui.glade) it properly linked with your mainapp.cpp.
 
-> git clone https://github.com/Snaggly/PS2_Pnacher.git
-> cd PS2_Pnacher
-> cmake . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
-> make
+```
+git clone https://github.com/Snaggly/PS2_Pnacher.git
+cd PS2_Pnacher
+cmake . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
+make
+```
 
 ## Install
 Installing is done similarly as in the building process. You only should change the build type to "Release" and let make install the rest on your OS.
 
-> cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
-> sudo make install
+```
+cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+sudo make install
+```
 
 ## Whats next?
 This is my first time trying to write something for Linux. If I did anything out of the norm I'd love to learn how it's done correctly! Or if they turn out of be issues I overlooked, please open a new issue (if not opened already).
