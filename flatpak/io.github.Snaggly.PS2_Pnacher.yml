@@ -1,4 +1,4 @@
-app-id: com.snaggly.ps2pnach
+app-id: io.github.Snaggly.PS2_Pnacher
 runtime: org.gnome.Platform
 runtime-version: '40'
 sdk: org.gnome.Sdk
@@ -27,11 +27,12 @@ modules:
     sources:
       - type: git
         url: 'https://github.com/Snaggly/PS2_Pnacher.git'
-        commit: 5f6eb27b65e2c8cc982d3e58ab2d8273a9f8c9a5
+        tag: 1.0
+        commit: 
       - type: patch
         path: ps2pnacher_flatpak.patch
     post-install:
-        - install -Dm644 flatpak/com.snaggly.ps2pnach.metainfo.xml /app/share/metainfo/com.snaggly.ps2pnach.metainfo.xml
+        - install -Dm644 flatpak/io.github.Snaggly.PS2_Pnacher.metainfo.xml /app/share/metainfo/io.github.Snaggly.PS2_Pnacher.metainfo.xml
     modules:
       - name: glibmm
         buildsystem: meson

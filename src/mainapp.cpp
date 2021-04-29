@@ -102,7 +102,7 @@ void MainApp::onIsoFileBtnClick() {
 }
 
 void MainApp::getWidgets() {
-	auto lBuilder = Gtk::Builder::create_from_file("/usr/share/ps2pnacher/com.snaggly.ps2pnach_gui.glade");
+	auto lBuilder = Gtk::Builder::create_from_file("/usr/share/ps2pnacher/io.github.Snaggly.PS2_Pnacher_gui.glade");
 	lBuilder->get_widget("window", window);
 	lBuilder->get_widget("pnachFileSelector", pnachFileSelector);
 	lBuilder->get_widget("isoFileSelector", isoFileSelector);

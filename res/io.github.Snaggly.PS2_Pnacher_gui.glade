@@ -8,7 +8,7 @@
     <property name="window-position">center</property>
     <property name="default-width">500</property>
     <property name="default-height">200</property>
-    <property name="icon-name">com.snaggly.ps2pnach</property>
+    <property name="icon-name">io.github.Snaggly.PS2_Pnacher</property>
     <child>
       <object class="GtkBox" id="rootBox">
         <property name="visible">True</property>
