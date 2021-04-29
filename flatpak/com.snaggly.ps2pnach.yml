@@ -29,7 +29,6 @@ modules:
     sources:
       - type: git
         url: 'https://github.com/Snaggly/PS2_Pnacher.git'
-        branch: 'main'
         commit: 163b0e812d52e2914e758ac763fdf6c675f968aa
       - type: patch
         path: ps2pnacher_flatpak.patch
