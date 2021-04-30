@@ -30,7 +30,8 @@ cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 sudo make install
 ```
 
+Alternatively you can just download from Flathub here:
+[https://flathub.org/apps/details/io.github.Snaggly.PS2_Pnacher](https://flathub.org/apps/details/io.github.Snaggly.PS2_Pnacher)
+
 ## Whats next?
 This is my first time trying to write something for Linux. If I did anything out of the norm I'd love to learn how it's done correctly! Or if they turn out of be issues I overlooked, please open a new issue (if not opened already).
-
-Also I'd like to see this app being released as a Flatpak soon.

@@ -28,7 +28,7 @@ modules:
       - type: git
         url: 'https://github.com/Snaggly/PS2_Pnacher.git'
         tag: 1.0
-        commit: 
+        commit: 6f23e70234ff3f48ed27d304413d7900c259442c
       - type: patch
         path: ps2pnacher_flatpak.patch
     post-install:
