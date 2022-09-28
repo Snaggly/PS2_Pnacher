@@ -22,7 +22,7 @@ void MainApp::onPatchBtnClick() {
 		return;
 	}
 	
-	uint64_t elfLocation = elfFile->location * 0x800;
+	uint64_t elfLocation = (uint64_t)elfFile->location * 0x800;
 	
 	Elf elfHed;
 	try{
