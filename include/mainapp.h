@@ -4,12 +4,11 @@
 #include <gtkmm/builder.h>
 #include <gtkmm/window.h>
 #include <gtkmm/button.h>
+#include <gtkmm/label.h>
 #include <gtkmm/checkbutton.h>
 #include <gtkmm/messagedialog.h>
 #include <gtkmm/filechoosernative.h>
-#include "PnachTools.h"
-#include "IsoTools.h"
-#include "ElfTools.h"
+#include <sstream>
 #include "Patcher.h"
 
 using namespace PS2PNACHER;
@@ -28,22 +27,23 @@ protected:
   void onIsoFileBtnClick();
   void getWidgets();
   void connectSignals();
-  template<typename T> void resetBtn(Gtk::Button *btn, T *&t_ptr);
-  template<typename T> void errorOut(const std::string message, Gtk::Button *btn, T *&t_ptr);
+  void resetBtn(Gtk::Button *btn);
+  void errorOut(const std::string message, Gtk::Button *btn);
   void showMessage(std::string message);
 
 private:
-  Gtk::Button *pnachFileSelector;
-  Gtk::Button *isoFileSelector;
-  Gtk::Button *patchBtn;
+  void startPatch();
+  void on_backupfile_click(int response_id);
+  void on_isofile_click(int response_id);
+  void on_pnachfile_click(int response_id);
+  Gtk::Button* pnachFileSelector;
+  Gtk::Button* isoFileSelector;
+  Gtk::Button* patchBtn;
+  Gtk::Label* progressLabel;
   Gtk::CheckButton *createBackupCheck;
   Glib::RefPtr<Gtk::MessageDialog> messagedialog;
   Glib::RefPtr<Gtk::FileChooserNative> fileChooser;
-  PnachTools *pnacher = 0;
-  IsoTools *iso = 0;
-  IsoRecord *elfFile = 0;
-  Glib::RefPtr<Gio::File> isoFile;
-  Glib::RefPtr<Gio::File> pnachFile;
+  Patcher* patcher;
 };
 
 #endif

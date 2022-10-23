@@ -6,65 +6,137 @@
 
 using namespace PS2PNACHER;
 
+void MainApp::on_backupfile_click(int response_id)
+{
+	if (response_id != Gtk::ResponseType::ACCEPT) return;
+
+	auto backupFile = fileChooser->get_file();
+	patcher->isoFile->copy_async(
+		backupFile,
+		[this] (goffset current_num_bytes, goffset total_num_bytes)
+		{
+			std::stringstream stream;
+			stream << std::fixed << std::setprecision(2) << (current_num_bytes / (float)total_num_bytes);
+			progressLabel->set_label(stream.str());
+		},
+		[this] (Glib::RefPtr<Gio::AsyncResult> &result)
+		{
+			progressLabel->set_label("");
+			try
+			{
+				if (patcher->isoFile->copy_finish(result))
+				{
+					startPatch();
+				}
+				else
+				{
+					showMessage("Failed to create backup!");
+				}
+			}
+			catch (Glib::Error &glibError)
+			{
+				std::cout << glibError.what();
+				showMessage("Failed to create backup!");
+			}
+		},
+		Gio::File::CopyFlags::OVERWRITE
+	);
+}
+
+void MainApp::on_isofile_click(int response_id)
+{
+	if (response_id == Gtk::ResponseType::ACCEPT)
+	{
+		patcher->addIsoFile(fileChooser->get_file(), [this] (auto status)
+		{
+			switch (status)
+			{
+			case DIR_NO_SUPPORT:
+				return errorOut("Directories are not supported!", isoFileSelector);
+			case FILE_NOT_ISO:
+				return errorOut("Selected file is not an ISO!", isoFileSelector);
+			case FILE_NOT_PS2ISO:
+				return errorOut("Selected ISO is not a PlayStation ISO!", isoFileSelector);
+			case ELF_NOT_FOUND:
+				return errorOut("Couldn't locate Elf in PlayStation ISO!", isoFileSelector);
+			case OK:
+				isoFileSelector->set_label(patcher->isoFile->get_basename());
+				break;
+			default:
+				return errorOut("Something unexpected happened!", isoFileSelector);
+			}
+		});
+	}
+}
+
+void MainApp::on_pnachfile_click(int response_id)
+{
+	if (response_id == Gtk::ResponseType::ACCEPT)
+	{
+		patcher->addPnachFile(fileChooser->get_file(), [this] (auto status)
+		{
+			switch(status)
+			{
+			case DIR_NO_SUPPORT:
+				return errorOut("Directories are not supported!", pnachFileSelector);
+			case PARSING_FAILED:
+				return errorOut("Selected file could not be parsed!", pnachFileSelector);
+			case OK:
+				pnachFileSelector->set_label(patcher->pnachFile->get_basename());
+				break;
+			default:
+				return errorOut("Something unexpected happened!", pnachFileSelector);
+			}
+		});
+	} 
+}
+
+void MainApp::startPatch()
+{
+	patcher->performPatch([this] (auto status)
+	{
+		switch (status)
+		{
+		case NO_PNATCH_FILE:
+			return showMessage("No Pnach file selected!");
+		case NO_ISO_FILE:
+			return showMessage("No ISO file selected!");
+		case NO_ELF_FILE:
+			return showMessage("No ELF file selected!");
+		case ELF_PARSING_FAILURE:
+			return showMessage("Patching failed! ELF could either not be parsed or written to!");
+		case PATCH_WRITE_FAILURE:
+			return showMessage("Patching ELF failed. Make sure to reuse the backup!");
+		case OK:
+			resetBtn(pnachFileSelector);
+			resetBtn(isoFileSelector);
+			return showMessage("Successfully patched iso!");
+		default:
+			return errorOut("Something unexpected happened!", pnachFileSelector);
+		}
+	});
+}
+
 void MainApp::onPatchBtnClick()
 {
-	if (!pnacher)
+	if (createBackupCheck->get_active()) 
 	{
-		showMessage("No Pnach file selected!");
-		return;
-	}
+		fileChooser = Gtk::FileChooserNative::create
+		(
+			"Create Backup",
+			*window,
+			Gtk::FileChooser::Action::SAVE,
+			"Save",
+			"Cancel"
+		);
 
-	if (!iso)
+		fileChooser->signal_response().connect(sigc::mem_fun(*this, &MainApp::on_backupfile_click));
+		fileChooser->show();
+	}
+	else
 	{
-		showMessage("No ISO file selected!");
-		return;
+		startPatch();
 	}
-
-	if (!elfFile)
-	{
-		showMessage("No ELF file selected!");
-		return;
-	}
-
-	uint64_t elfLocation = (uint64_t)elfFile->location * 0x800;
-
-	Elf elfHed;
-	try{
-		auto elfStr = std::fstream(isoFile->get_path(),
-				std::ios::in | std::ios::out | std::ios::binary);
-		{
-			elfStr.seekp(elfLocation);
-			elfHed = parseElfFile(&elfStr);
-		}
-	}catch(std::exception& exc) {
-		showMessage("Patching failed! ELF could either not be parsed or written to!");
-		return;
-	}
-
-	try{
-		std::string backupFile = isoFile->get_path();
-		backupFile.append(".bak");
-		std::filesystem::copy_file(isoFile->get_path(), backupFile,
-							std::filesystem::copy_options::overwrite_existing);
-	}catch(std::exception& exc) {
-		showMessage("Failed to create backup!");
-		return;
-	}
-
-	try {
-		auto file = std::fstream(isoFile->get_path(),
-				std::ios::in | std::ios::out | std::ios::binary);
-		{
-			performPatch(&file, pnacher, &elfHed, elfLocation);
-		}
-	}catch(std::exception& exc) {
-		showMessage("Patching ELF failed. Make sure to reuse the backup!");
-		return;
-	}
-
-	showMessage("Successfully patched iso! Make sure to keep your backup.");
-	resetBtn(pnachFileSelector, pnacher);
-	resetBtn(isoFileSelector, iso);
 }
 
 void MainApp::onPnachFileBtnClick()
@@ -80,29 +152,7 @@ void MainApp::onPnachFileBtnClick()
 	filter->add_suffix("pnach");
 	fileChooser->set_filter(filter);
 
-	fileChooser->signal_response().connect([this](int response)
-		{
-		if (response == Gtk::ResponseType::ACCEPT)
-		{
-			if (pnacher != NULL)
-				delete pnacher;
-			pnachFile = fileChooser->get_file();
-			if (std::filesystem::is_directory(pnachFile->get_path()))
-			{
-				return errorOut<PnachTools>("Directories are not supported!", pnachFileSelector, pnacher);
-			}
-			pnacher = PnachTools::parsePnachFile(pnachFile->get_path());
-			if (!pnacher)
-			{
-				return errorOut<PnachTools>("Selected file could not be parsed!", pnachFileSelector, pnacher);
-			}
-			else
-			{
-				pnachFileSelector->set_label(pnachFile->get_basename());
-			}
-		} 
-		});
-
+	fileChooser->signal_response().connect(sigc::mem_fun(*this, &MainApp::on_pnachfile_click));
 	fileChooser->show();
 }
 
@@ -118,36 +168,7 @@ void MainApp::onIsoFileBtnClick()
 	filter->add_suffix("iso");
 	fileChooser->set_filter(filter);
 
-	fileChooser->signal_response().connect([this](int response)
-	{
-	if (response == Gtk::ResponseType::ACCEPT)
-	{
-		isoFile = fileChooser->get_file();
-		if (std::filesystem::is_directory(isoFile->get_path()))
-		{
-			return errorOut<IsoTools>("Directories are not supported!", isoFileSelector, iso);
-		}
-		delete iso;
-		iso = IsoTools::readIsoFromFile(isoFile->get_path().c_str());
-		if (!iso)
-		{
-			return errorOut<IsoTools>("Selected file is not an ISO!", isoFileSelector, iso);
-		}
-
-		if (std::strcmp(iso->getApplicationID(), "PLAYSTATION"))
-		{
-			return errorOut<IsoTools>("Selected ISO is not a PlayStation ISO!", isoFileSelector, iso);
-		}
-
-		delete elfFile;
-		elfFile = iso->findElfFile();
-		if (!elfFile)
-		{
-			return errorOut<IsoTools>("Couldn't locate Elf in PlayStation ISO!", isoFileSelector, iso);
-		}
-		isoFileSelector->set_label(isoFile->get_basename());
-	} 
-	});
+	fileChooser->signal_response().connect(sigc::mem_fun(*this, &MainApp::on_isofile_click));
 
 	fileChooser->show();
 }
@@ -160,6 +181,7 @@ void MainApp::getWidgets()
 	isoFileSelector = lBuilder->get_widget<Gtk::Button>("isoFileSelector");
 	patchBtn = lBuilder->get_widget<Gtk::Button>("patchBtn");
 	createBackupCheck = lBuilder->get_widget<Gtk::CheckButton>("createBackupCeck");
+	progressLabel = lBuilder->get_widget<Gtk::Label>("progressLabel");
 }
 
 void MainApp::connectSignals()
@@ -186,14 +208,12 @@ void MainApp::showMessage(std::string message)
 	});
 }
 
-template<typename T> void MainApp::resetBtn(Gtk::Button *btn, T *&t_ptr) {
-	delete t_ptr;
-	t_ptr = nullptr;
+void MainApp::resetBtn(Gtk::Button *btn) {
 	btn->set_label(PS2PNACHER::UI::defaultNoFile);
 }
 
-template<typename T> void MainApp::errorOut(const std::string message, Gtk::Button *btn, T *&t_ptr) {
-	resetBtn(btn, t_ptr);
+void MainApp::errorOut(const std::string message, Gtk::Button *btn) {
+	resetBtn(btn);
 	showMessage(message);
 }
 
@@ -201,13 +221,11 @@ MainApp::MainApp()
 {
 	getWidgets();
 	connectSignals();
+	patcher = new Patcher();
 }
 
 MainApp::~MainApp()
 {
-	delete pnacher;
-	delete iso;
-	delete elfFile;
-
+	delete patcher;
 	delete window;
 }

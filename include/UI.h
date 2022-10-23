@@ -154,6 +154,14 @@ namespace PS2PNACHER
                     <property name="margin-bottom">5</property>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkLabel" id="progressLabel">
+                    <property name="label" translatable="no"></property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="halign">center</property>
+                  </object>
+                </child>
               </object>
             </child>
             <child type="label_item">
