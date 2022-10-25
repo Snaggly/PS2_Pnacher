@@ -25,5 +25,6 @@ sources = files(
 executable('io.github.Snaggly.PS2_Pnacher', sources, include_directories: incDir, dependencies: [gtk, glib, cdio, iso], install: true)
 install_data('res/io.github.Snaggly.PS2_Pnacher.desktop', install_dir: 'share/applications')
 install_data('res/io.github.Snaggly.PS2_Pnacher.svg', install_dir: 'share/icons/hicolor/scalable/apps')
+install_data('res/io.github.Snaggly.PS2_Pnacher.metainfo.xml', install_dir: 'share/metainfo')
 
 gnome.post_install(gtk_update_icon_cache: true, update_desktop_database: true)
