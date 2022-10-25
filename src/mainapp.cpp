@@ -119,7 +119,10 @@ void MainApp::startPatch()
 
 void MainApp::onPatchBtnClick()
 {
-	if (createBackupCheck->get_active()) 
+	if (createBackupCheck->get_active() 
+		&& patcher->isoFile 
+		&& patcher->pnachFile
+		)
 	{
 		fileChooser = Gtk::FileChooserNative::create
 		(
@@ -129,6 +132,9 @@ void MainApp::onPatchBtnClick()
 			"Save",
 			"Cancel"
 		);
+
+		fileChooser->set_current_folder(patcher->isoFile->get_parent());
+		fileChooser->set_current_name(patcher->isoFile->get_basename().append(".bak"));
 
 		fileChooser->signal_response().connect(sigc::mem_fun(*this, &MainApp::on_backupfile_click));
 		fileChooser->show();
@@ -209,7 +215,7 @@ void MainApp::showMessage(std::string message)
 }
 
 void MainApp::resetBtn(Gtk::Button *btn) {
-	btn->set_label(PS2PNACHER::UI::defaultNoFile);
+	btn->set_label(UI::defaultNoFile);
 }
 
 void MainApp::errorOut(const std::string message, Gtk::Button *btn) {
