@@ -9,22 +9,20 @@ It's basically very straight forward. You select one pnach file. The program wil
 
 ## Building
 To build you need to have the following packages installed (which I assume your distro already comes with):
-- gtkmm-3.0
+- gtkmm-4.0
 - glib-2.0
 - libcdio++
 
-Clone the repo and let cmake handle the rest. Make sure that glade file (res/com.snaggly.ps2pnach_gui.glade) it properly linked with your mainapp.cpp.
+Clone the repo and let meson handle the rest.
 
 ```
 git clone https://github.com/Snaggly/PS2_Pnacher.git
 cd PS2_Pnacher
-cmake . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
-make
+meson compile
 ```
 
 ## Install
-Installing is done similarly as in the building process. You only should change the build type to "Release" and let make install the rest on your OS.
-
+meson install
 ```
 cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 sudo make install
