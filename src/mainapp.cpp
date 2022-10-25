@@ -119,29 +119,40 @@ void MainApp::startPatch()
 
 void MainApp::onPatchBtnClick()
 {
-	if (createBackupCheck->get_active() 
-		&& patcher->isoFile 
-		&& patcher->pnachFile
-		)
+	if (patcher->canPerformPatch([this] (auto status) 
 	{
-		fileChooser = Gtk::FileChooserNative::create
-		(
-			"Create Backup",
-			*window,
-			Gtk::FileChooser::Action::SAVE,
-			"Save",
-			"Cancel"
-		);
-
-		fileChooser->set_current_folder(patcher->isoFile->get_parent());
-		fileChooser->set_current_name(patcher->isoFile->get_basename().append(".bak"));
-
-		fileChooser->signal_response().connect(sigc::mem_fun(*this, &MainApp::on_backupfile_click));
-		fileChooser->show();
-	}
-	else
+		switch (status)
+		{
+		case NO_PNATCH_FILE:
+			return showMessage("No Pnach file selected!");
+		case NO_ISO_FILE:
+			return showMessage("No ISO file selected!");
+		case NO_ELF_FILE:
+			return showMessage("No ELF file selected!");
+		}
+	}))
 	{
-		startPatch();
+		if (createBackupCheck->get_active())
+		{
+			fileChooser = Gtk::FileChooserNative::create
+			(
+				"Create Backup",
+				*window,
+				Gtk::FileChooser::Action::SAVE,
+				"Save",
+				"Cancel"
+			);
+
+			fileChooser->set_current_folder(patcher->isoFile->get_parent());
+			fileChooser->set_current_name(patcher->isoFile->get_basename().append(".bak"));
+
+			fileChooser->signal_response().connect(sigc::mem_fun(*this, &MainApp::on_backupfile_click));
+			fileChooser->show();
+		}
+		else
+		{
+			startPatch();
+		}
 	}
 }
 

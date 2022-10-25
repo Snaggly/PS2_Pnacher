@@ -26,5 +26,6 @@ namespace PS2PNACHER
 		void addIsoFile(const Glib::RefPtr<Gio::File>& isoFile, sigc::slot<void (ReturnStatus)>&& handle_status);
 		Glib::RefPtr<Gio::File> isoFile;
 		Glib::RefPtr<Gio::File> pnachFile;
+		bool canPerformPatch(sigc::slot<void (ReturnStatus)>&& handle_status);
 	};
 }

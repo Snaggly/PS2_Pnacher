@@ -13,6 +13,28 @@ Patcher::~Patcher()
 	delete elfFile;
 }
 
+bool Patcher::canPerformPatch(sigc::slot<void (ReturnStatus)>&& handle_status)
+{
+	if (!pnacher)
+	{
+		handle_status(NO_PNATCH_FILE);
+	}
+	else if (!iso)
+	{
+		handle_status(NO_ISO_FILE);
+	}
+	else if (!elfFile)
+	{
+		handle_status(NO_ELF_FILE);
+	}
+	else
+	{
+		handle_status(OK);
+	}
+	
+	return (pnacher && iso && elfFile);
+}
+
 void Patcher::addPnachFile(const Glib::RefPtr<Gio::File>& pnachFile, sigc::slot<void (ReturnStatus)>&& handle_status)
 {
 	if (pnacher)
@@ -173,6 +195,13 @@ void Patcher::performPatch(sigc::slot<void (ReturnStatus)>&& handle_status)
 		handle_status(PATCH_WRITE_FAILURE);
 		return;
 	}
+
+	delete pnacher;
+	delete elfFile;
+	delete iso;
+	pnacher = nullptr;
+	elfFile= nullptr;
+	iso = nullptr;
 	
 	handle_status(OK);
 }
