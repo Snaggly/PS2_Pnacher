@@ -16,8 +16,8 @@ void MainApp::on_backupfile_click(int response_id)
 		[this] (goffset current_num_bytes, goffset total_num_bytes)
 		{
 			std::stringstream stream;
-			stream << std::fixed << std::setprecision(2) << (current_num_bytes / (float)total_num_bytes);
-			progressLabel->set_label(stream.str());
+			stream << std::fixed << std::setprecision(2) << ((current_num_bytes / (float)total_num_bytes) * 100);
+			progressLabel->set_label(stream.str().append(" %"));
 		},
 		[this] (Glib::RefPtr<Gio::AsyncResult> &result)
 		{
