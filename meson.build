@@ -7,7 +7,7 @@ project('io.github.Snaggly.PS2_Pnacher',
 
 gnome = import('gnome')
 
-gtk = dependency('gtkmm-3.0')
+gtk = dependency('gtkmm-4.0')
 glib = dependency('glib-2.0')
 cdio = dependency('libcdio++')
 iso = dependency('libiso9660++')
