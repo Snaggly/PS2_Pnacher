@@ -22,10 +22,8 @@ sources = files(
     'src/PnachTools.cpp'
 )
 
-
 executable('io.github.Snaggly.PS2_Pnacher', sources, include_directories: incDir, dependencies: [gtk, glib, cdio, iso], install: true)
 install_data('res/io.github.Snaggly.PS2_Pnacher.desktop', install_dir: 'share/applications')
 install_data('res/io.github.Snaggly.PS2_Pnacher.svg', install_dir: 'share/icons/hicolor/scalable/apps')
-install_data('res/io.github.Snaggly.PS2_Pnacher_gui.glade', install_dir: 'share/ps2pnacher')
 
 gnome.post_install(gtk_update_icon_cache: true, update_desktop_database: true)
