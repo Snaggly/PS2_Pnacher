@@ -18,11 +18,12 @@ Clone the repo and let meson handle the rest.
 ```
 git clone https://github.com/Snaggly/PS2_Pnacher.git
 cd PS2_Pnacher
-meson compile
+meson build
 ```
 
 ## Install
 ```
+cd build
 meson install
 ```
 

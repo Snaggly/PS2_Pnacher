@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
 namespace PS2PNACHER
 {
